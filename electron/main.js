@@ -11,10 +11,8 @@ let mainWindow;
 function send(action) {
   return (_menuItem, browserWindow) => {
     const win = browserWindow || BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
-    console.log('[main] menu clicked:', action, 'hasWindow:', !!win);
     if (win) {
       win.webContents.send('menu-action', action);
-      console.log('[main] IPC sent:', action);
     }
   };
 }

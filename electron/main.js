@@ -11,8 +11,10 @@ let mainWindow;
 function send(action) {
   return (_menuItem, browserWindow) => {
     const win = browserWindow || BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+    console.log('[main] menu clicked:', action, 'hasWindow:', !!win);
     if (win) {
       win.webContents.send('menu-action', action);
+      console.log('[main] IPC sent:', action);
     }
   };
 }
@@ -25,7 +27,7 @@ function createWindow() {
     minHeight: 600,
     title: 'drawDB',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
     },

@@ -1,4 +1,6 @@
-import { contextBridge, ipcRenderer } from 'electron';
+const { contextBridge, ipcRenderer } = require('electron');
+
+console.log('[preload] drawDB preload script loaded');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   saveFile: (content, defaultName, filters) =>
@@ -8,10 +10,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('open-file', { filters }),
 
   onMenuAction: (callback) => {
-    ipcRenderer.on('menu-action', (_event, action) => callback(action));
+    console.log('[preload] onMenuAction registered');
+    ipcRenderer.on('menu-action', (_event, action) => {
+      console.log('[preload] received menu-action:', action);
+      callback(action);
+    });
   },
 
   removeMenuActionListener: () => {
+    console.log('[preload] removeMenuActionListener');
     ipcRenderer.removeAllListeners('menu-action');
   },
 });

@@ -10,9 +10,15 @@ import { useEffect } from "react";
 export default function useElectronMenu(handlers) {
   useEffect(() => {
     const api = window.electronAPI;
-    if (!api?.onMenuAction) return;
+    console.log('[renderer] useElectronMenu: electronAPI available:', !!api, 'onMenuAction:', !!api?.onMenuAction);
+
+    if (!api?.onMenuAction) {
+      console.warn('[renderer] electronAPI not available — menu bar will not work');
+      return;
+    }
 
     api.onMenuAction((action) => {
+      console.log('[renderer] menu-action received:', action, 'hasHandler:', action in handlers);
       if (handlers[action]) {
         handlers[action]();
       }

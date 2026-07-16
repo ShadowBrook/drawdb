@@ -4,7 +4,7 @@ directories:
   output: dist-electron
 mac:
   target: dmg
-  icon: public/favicon.ico
+  icon: public/icon.png
 files:
   - dist/**/*
   - electron/**/*

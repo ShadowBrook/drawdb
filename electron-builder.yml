@@ -5,6 +5,8 @@ directories:
 mac:
   target: dmg
   icon: public/icon-1024.png
+asar: true
+compression: maximum
 files:
   - dist/**/*
   - electron/**/*

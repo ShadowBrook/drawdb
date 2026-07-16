@@ -26,4 +26,31 @@ function copyFontsPlugin() {
 export default defineConfig({
   base: './',
   plugins: [react(), copyFontsPlugin()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@douyinfe/semi-ui') || id.includes('@douyinfe/semi-icons') || id.includes('@douyinfe/semi-illustrations')) return 'vendor-semi';
+            if (id.includes('monaco-editor') || id.includes('@monaco-editor')) return 'vendor-editor';
+            if (id.includes('node-sql-parser') || id.includes('oracle-sql-parser')) return 'vendor-sql';
+            if (id.includes('jspdf')) return 'vendor-pdf';
+            if (id.includes('lexical')) return 'vendor-lexical';
+            if (id.includes('dexie')) return 'vendor-db';
+            if (id.includes('i18next')) return 'vendor-i18n';
+            if (id.includes('framer-motion') || id.includes('lottie-web')) return 'vendor-anim';
+            if (id.includes('react-router')) return 'vendor-router';
+            if (id.includes('lodash') || id.includes('luxon') || id.includes('axios') || id.includes('jszip') || id.includes('uuid') || id.includes('nanoid')) return 'vendor-utils';
+            if (id.includes('react-dom') || id.includes('scheduler')) return 'vendor-react';
+            if (id.includes('html-to-image') || id.includes('html2canvas')) return 'vendor-image';
+            if (id.includes('@dnd-kit')) return 'vendor-dnd';
+            if (id.includes('react-tweet')) return 'vendor-tweet';
+            if (id.includes('dbml') || id.includes('@dbml')) return 'vendor-dbml';
+            if (id.includes('file-saver') || id.includes('usehooks-ts') || id.includes('react-hotkeys-hook')) return 'vendor-misc';
+            return 'vendor';
+          }
+        },
+      },
+    },
+  },
 })

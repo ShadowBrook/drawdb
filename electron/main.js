@@ -9,7 +9,12 @@ const isDev = !app.isPackaged;
 let mainWindow;
 
 function send(action) {
-  mainWindow?.webContents.send('menu-action', action);
+  return (_menuItem, browserWindow) => {
+    const win = browserWindow || BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+    if (win) {
+      win.webContents.send('menu-action', action);
+    }
+  };
 }
 
 function createWindow() {
@@ -64,37 +69,37 @@ function createMenu() {
     {
       label: 'File',
       submenu: [
-        { label: 'New', accelerator: 'CmdOrCtrl+N', click: () => send('new') },
+        { label: 'New', accelerator: 'CmdOrCtrl+N', click: send('new') },
         { type: 'separator' },
-        { label: 'Open...', accelerator: 'CmdOrCtrl+O', click: () => send('open') },
-        { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => send('save') },
-        { label: 'Save As...', accelerator: 'CmdOrCtrl+Shift+S', click: () => send('save-as') },
-        { label: 'Rename', click: () => send('rename') },
+        { label: 'Open...', accelerator: 'CmdOrCtrl+O', click: send('open') },
+        { label: 'Save', accelerator: 'CmdOrCtrl+S', click: send('save') },
+        { label: 'Save As...', accelerator: 'CmdOrCtrl+Shift+S', click: send('save-as') },
+        { label: 'Rename', click: send('rename') },
         { type: 'separator' },
         {
           label: 'Import',
           submenu: [
-            { label: 'From JSON File...', click: () => send('import-file') },
-            { label: 'From SQL...', accelerator: 'CmdOrCtrl+I', click: () => send('import-sql') },
+            { label: 'From JSON File...', click: send('import-file') },
+            { label: 'From SQL...', accelerator: 'CmdOrCtrl+I', click: send('import-sql') },
           ],
         },
         {
           label: 'Export As',
           submenu: [
-            { label: 'PNG', click: () => send('export-png') },
-            { label: 'JPEG', click: () => send('export-jpeg') },
-            { label: 'SVG', click: () => send('export-svg') },
-            { label: 'PDF', click: () => send('export-pdf') },
+            { label: 'PNG', click: send('export-png') },
+            { label: 'JPEG', click: send('export-jpeg') },
+            { label: 'SVG', click: send('export-svg') },
+            { label: 'PDF', click: send('export-pdf') },
             { type: 'separator' },
-            { label: 'JSON', click: () => send('export-json') },
-            { label: 'SQL', click: () => send('export-sql') },
-            { label: 'DBML', click: () => send('export-dbml') },
-            { label: 'Mermaid', click: () => send('export-mermaid') },
-            { label: 'Markdown', click: () => send('export-markdown') },
+            { label: 'JSON', click: send('export-json') },
+            { label: 'SQL', click: send('export-sql') },
+            { label: 'DBML', click: send('export-dbml') },
+            { label: 'Mermaid', click: send('export-mermaid') },
+            { label: 'Markdown', click: send('export-markdown') },
           ],
         },
         { type: 'separator' },
-        { label: 'Print', accelerator: 'CmdOrCtrl+P', click: () => send('print') },
+        { label: 'Print', accelerator: 'CmdOrCtrl+P', click: send('print') },
       ],
     },
 
@@ -102,16 +107,16 @@ function createMenu() {
     {
       label: 'Edit',
       submenu: [
-        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: () => send('undo') },
-        { label: 'Redo', accelerator: 'CmdOrCtrl+Y', click: () => send('redo') },
+        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: send('undo') },
+        { label: 'Redo', accelerator: 'CmdOrCtrl+Y', click: send('redo') },
         { type: 'separator' },
-        { label: 'Cut', accelerator: 'CmdOrCtrl+X', click: () => send('cut') },
-        { label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => send('copy') },
-        { label: 'Paste', accelerator: 'CmdOrCtrl+V', click: () => send('paste') },
-        { label: 'Delete', accelerator: 'Delete', click: () => send('delete') },
+        { label: 'Cut', accelerator: 'CmdOrCtrl+X', click: send('cut') },
+        { label: 'Copy', accelerator: 'CmdOrCtrl+C', click: send('copy') },
+        { label: 'Paste', accelerator: 'CmdOrCtrl+V', click: send('paste') },
+        { label: 'Delete', accelerator: 'Delete', click: send('delete') },
         { type: 'separator' },
-        { label: 'Select All', accelerator: 'CmdOrCtrl+A', click: () => send('select-all') },
-        { label: 'Duplicate', accelerator: 'CmdOrCtrl+D', click: () => send('duplicate') },
+        { label: 'Select All', accelerator: 'CmdOrCtrl+A', click: send('select-all') },
+        { label: 'Duplicate', accelerator: 'CmdOrCtrl+D', click: send('duplicate') },
       ],
     },
 
@@ -119,31 +124,31 @@ function createMenu() {
     {
       label: 'View',
       submenu: [
-        { label: 'Zoom In', accelerator: 'CmdOrCtrl+=', click: () => send('zoom-in') },
-        { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', click: () => send('zoom-out') },
-        { label: 'Reset Zoom', accelerator: 'CmdOrCtrl+0', click: () => send('zoom-reset') },
-        { label: 'Fit Window', accelerator: 'CmdOrCtrl+Alt+W', click: () => send('fit-window') },
+        { label: 'Zoom In', accelerator: 'CmdOrCtrl+=', click: send('zoom-in') },
+        { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', click: send('zoom-out') },
+        { label: 'Reset Zoom', accelerator: 'CmdOrCtrl+0', click: send('zoom-reset') },
+        { label: 'Fit Window', accelerator: 'CmdOrCtrl+Alt+W', click: send('fit-window') },
         { type: 'separator' },
-        { label: 'Toggle Fullscreen', accelerator: isMac ? 'Ctrl+Cmd+F' : 'F11', click: () => send('toggle-fullscreen') },
+        { label: 'Toggle Fullscreen', accelerator: isMac ? 'Ctrl+Cmd+F' : 'F11', click: send('toggle-fullscreen') },
         { type: 'separator' },
-        { label: 'Show Grid', accelerator: 'CmdOrCtrl+Shift+G', type: 'checkbox', checked: true, click: () => send('toggle-grid') },
-        { label: 'Snap to Grid', type: 'checkbox', click: () => send('toggle-snap') },
+        { label: 'Show Grid', accelerator: 'CmdOrCtrl+Shift+G', type: 'checkbox', checked: true, click: send('toggle-grid') },
+        { label: 'Snap to Grid', type: 'checkbox', click: send('toggle-snap') },
         { type: 'separator' },
-        { label: 'Show Cardinality', type: 'checkbox', checked: true, click: () => send('toggle-cardinality') },
-        { label: 'Show Relationship Labels', type: 'checkbox', checked: true, click: () => send('toggle-labels') },
-        { label: 'Show Data Types', type: 'checkbox', checked: true, click: () => send('toggle-datatypes') },
-        { label: 'Show Field Summary', accelerator: 'CmdOrCtrl+Shift+F', type: 'checkbox', click: () => send('toggle-field-summary') },
-        { label: 'Show Comments', type: 'checkbox', click: () => send('toggle-comments') },
+        { label: 'Show Cardinality', type: 'checkbox', checked: true, click: send('toggle-cardinality') },
+        { label: 'Show Relationship Labels', type: 'checkbox', checked: true, click: send('toggle-labels') },
+        { label: 'Show Data Types', type: 'checkbox', checked: true, click: send('toggle-datatypes') },
+        { label: 'Show Field Summary', accelerator: 'CmdOrCtrl+Shift+F', type: 'checkbox', click: send('toggle-field-summary') },
+        { label: 'Show Comments', type: 'checkbox', click: send('toggle-comments') },
         { type: 'separator' },
         {
           label: 'Theme',
           submenu: [
-            { label: 'Light', type: 'radio', click: () => send('theme-light') },
-            { label: 'Dark', type: 'radio', click: () => send('theme-dark') },
+            { label: 'Light', type: 'radio', click: send('theme-light') },
+            { label: 'Dark', type: 'radio', click: send('theme-dark') },
           ],
         },
         { type: 'separator' },
-        { label: 'DBML Editor', accelerator: 'Alt+E', click: () => send('toggle-dbml-editor') },
+        { label: 'DBML Editor', accelerator: 'Alt+E', click: send('toggle-dbml-editor') },
       ],
     },
 
@@ -151,16 +156,16 @@ function createMenu() {
     {
       label: 'Settings',
       submenu: [
-        { label: 'Autosave', type: 'checkbox', checked: true, click: () => send('toggle-autosave') },
-        { label: 'Table Width...', click: () => send('table-width') },
-        { label: 'Configure Custom Types...', click: () => send('custom-types') },
-        { label: 'Language...', click: () => send('language') },
+        { label: 'Autosave', type: 'checkbox', checked: true, click: send('toggle-autosave') },
+        { label: 'Table Width...', click: send('table-width') },
+        { label: 'Configure Custom Types...', click: send('custom-types') },
+        { label: 'Language...', click: send('language') },
         { type: 'separator' },
-        { label: 'Export Saved Data...', click: () => send('export-saved-data') },
-        { label: 'Clear Cache', click: () => send('clear-cache') },
-        { label: 'Flush Storage...', click: () => send('flush-storage') },
+        { label: 'Export Saved Data...', click: send('export-saved-data') },
+        { label: 'Clear Cache', click: send('clear-cache') },
+        { label: 'Flush Storage...', click: send('flush-storage') },
         { type: 'separator' },
-        { label: 'Show Timeline', click: () => send('show-timeline') },
+        { label: 'Show Timeline', click: send('show-timeline') },
       ],
     },
 
@@ -193,20 +198,20 @@ function createMenu() {
       submenu: [
         {
           label: 'Documentation',
-          click: () => send('help-docs'),
+          click: send('help-docs'),
         },
         {
           label: 'Keyboard Shortcuts',
-          click: () => send('help-shortcuts'),
+          click: send('help-shortcuts'),
         },
         { type: 'separator' },
         {
           label: 'Ask on Discord',
-          click: () => send('help-discord'),
+          click: send('help-discord'),
         },
         {
           label: 'Report Bug',
-          click: () => send('help-bug-report'),
+          click: send('help-bug-report'),
         },
       ],
     },

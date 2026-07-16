@@ -170,19 +170,38 @@ export default function Modal({
     }
   };
 
+  // Use native Electron save dialog when available, fall back to browser saveAs
+  const saveFile = async (data, filename, isBinary) => {
+    if (window.electronAPI?.saveFile) {
+      const content = isBinary
+        ? data.split(",")[1] || data // strip dataURL prefix for binary
+        : data;
+      const ext = filename.split(".").pop();
+      const filters = [{ name: ext.toUpperCase(), extensions: [ext] }];
+      await window.electronAPI.saveFile(content, filename, filters);
+    } else {
+      const blob = isBinary
+        ? await (await fetch(data)).blob()
+        : new Blob([data], { type: "application/json" });
+      saveAs(blob, filename);
+    }
+  };
+
   const getModalOnOk = async () => {
     switch (modal) {
       case MODAL.IMG:
-        saveAs(
+        await saveFile(
           exportData.data,
           `${exportData.filename}.${exportData.extension}`,
+          true,
         );
         return;
       case MODAL.CODE: {
-        const blob = new Blob([exportData.data], {
-          type: "application/json",
-        });
-        saveAs(blob, `${exportData.filename}.${exportData.extension}`);
+        await saveFile(
+          exportData.data,
+          `${exportData.filename}.${exportData.extension}`,
+          false,
+        );
         return;
       }
       case MODAL.IMPORT:

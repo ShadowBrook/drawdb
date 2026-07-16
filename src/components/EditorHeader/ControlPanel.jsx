@@ -67,6 +67,7 @@ import {
   useFullscreen,
   useNavigateWithParams,
 } from "../../hooks";
+import useElectronMenu from "../../hooks/useElectronMenu";
 import { enterFullscreen, exitFullscreen } from "../../utils/fullscreen";
 import { dataURItoBlob } from "../../utils/utils";
 import { IconAddArea, IconAddNote, IconAddTable } from "../../icons";
@@ -1774,6 +1775,17 @@ export default function ControlPanel({
   });
   useHotkeys("mod+alt+w", fitWindow, { preventDefault: true });
   useHotkeys("alt+e", toggleDBMLEditor, { preventDefault: true });
+
+  // Listen for Electron menu bar actions (no-op in browser)
+  useElectronMenu({
+    "new": () => setModal(MODAL.NEW),
+    "open": () => setModal(MODAL.OPEN),
+    "save": save,
+    "save-as": saveDiagramAs,
+    "zoom-in": zoomIn,
+    "zoom-out": zoomOut,
+    "zoom-reset": resetView,
+  });
 
   return (
     <>

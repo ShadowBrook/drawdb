@@ -1776,15 +1776,129 @@ export default function ControlPanel({
   useHotkeys("mod+alt+w", fitWindow, { preventDefault: true });
   useHotkeys("alt+e", toggleDBMLEditor, { preventDefault: true });
 
-  // Listen for Electron menu bar actions (no-op in browser)
+  // ---- Electron native menu bar handlers ----
+  const _exportJSON = () => {
+    openExportModal(MODAL.CODE);
+    const result = JSON.stringify(
+      { tables, relationships: relationships, notes, subjectAreas: areas, database, title,
+        ...(databases[database].hasTypes && { types }),
+        ...(databases[database].hasEnums && { enums }) },
+      null, 2,
+    );
+    setExportData((prev) => ({ ...prev, data: result, extension: "json" }));
+  };
+  const _exportPNG = () => {
+    toPng(document.getElementById("canvas"), { pixelRatio: pngExportPixelRatio })
+      .then((dataUrl) => setExportData((prev) => ({ ...prev, data: dataUrl, extension: "png" })));
+    openExportModal(MODAL.IMG);
+  };
+  const _exportJPEG = () => {
+    toJpeg(document.getElementById("canvas"), { quality: 0.95 })
+      .then((dataUrl) => setExportData((prev) => ({ ...prev, data: dataUrl, extension: "jpeg" })));
+    openExportModal(MODAL.IMG);
+  };
+  const _exportSVG = () => {
+    toSvg(document.getElementById("canvas"), { filter: (node) => node.tagName !== "i" })
+      .then((dataUrl) => setExportData((prev) => ({ ...prev, data: dataUrl, extension: "svg" })));
+    openExportModal(MODAL.IMG);
+  };
+  const _exportPDF = () => {
+    const canvas = document.getElementById("canvas");
+    const filename = `${title}_${new Date().toISOString()}`;
+    toJpeg(canvas).then((dataUrl) => {
+      const doc = new jsPDF("l", "px", [canvas.offsetWidth, canvas.offsetHeight]);
+      doc.addImage(dataUrl, "jpeg", 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      doc.save(`${filename}.pdf`);
+    });
+  };
+  const _exportDBML = () => {
+    openExportModal(MODAL.CODE);
+    setExportData((prev) => ({ ...prev, data: toDBML({ tables, relationships, enums, database }), extension: "dbml" }));
+  };
+  const _exportMermaid = () => {
+    openExportModal(MODAL.CODE);
+    setExportData((prev) => ({ ...prev, data: jsonToMermaid({ tables, relationships, notes, subjectAreas: areas, database, title }), extension: "md" }));
+  };
+  const _exportMarkdown = () => {
+    openExportModal(MODAL.CODE);
+    const result = jsonToDocumentation({ tables, relationships, notes, subjectAreas: areas, database, title,
+      ...(databases[database].hasTypes && { types }),
+      ...(databases[database].hasEnums && { enums }) });
+    setExportData((prev) => ({ ...prev, data: result, extension: "md" }));
+  };
+  const _exportSQL = () => {
+    openExportModal(MODAL.CODE);
+    const src = database === DB.GENERIC
+      ? exportSQL({ tables, references: relationships, types, database })
+      : exportSQL({ tables, references: relationships, types, enums, database });
+    setExportData((prev) => ({ ...prev, data: src, extension: "sql" }));
+  };
+
   useElectronMenu({
+    // File
     "new": () => setModal(MODAL.NEW),
     "open": () => setModal(MODAL.OPEN),
     "save": save,
     "save-as": saveDiagramAs,
+    "rename": () => setModal(MODAL.RENAME),
+    "import-file": () => { setModal(MODAL.IMPORT); setImportFrom(IMPORT_FROM.JSON); },
+    "import-sql": () => { if (database !== DB.GENERIC) setModal(MODAL.IMPORT_SRC); },
+    "export-png": _exportPNG,
+    "export-jpeg": _exportJPEG,
+    "export-svg": _exportSVG,
+    "export-pdf": _exportPDF,
+    "export-json": _exportJSON,
+    "export-sql": _exportSQL,
+    "export-dbml": _exportDBML,
+    "export-mermaid": _exportMermaid,
+    "export-markdown": _exportMarkdown,
+    "print": () => window.print(),
+    // Edit
+    "undo": undo,
+    "redo": redo,
+    "cut": cut,
+    "copy": copy,
+    "paste": paste,
+    "delete": del,
+    "select-all": () => { document.execCommand("selectAll"); },
+    "duplicate": duplicate,
+    // View
     "zoom-in": zoomIn,
     "zoom-out": zoomOut,
     "zoom-reset": resetView,
+    "fit-window": fitWindow,
+    "toggle-fullscreen": () => fullscreen ? exitFullscreen() : enterFullscreen(),
+    "toggle-grid": () => setSettings((prev) => ({ ...prev, showGrid: !prev.showGrid })),
+    "toggle-snap": () => setSettings((prev) => ({ ...prev, snapToGrid: !prev.snapToGrid })),
+    "toggle-cardinality": () => setSettings((prev) => ({ ...prev, showCardinality: !prev.showCardinality })),
+    "toggle-labels": () => setSettings((prev) => ({ ...prev, showRelationshipLabels: !prev.showRelationshipLabels })),
+    "toggle-datatypes": () => setSettings((prev) => ({ ...prev, showDataTypes: !prev.showDataTypes })),
+    "toggle-field-summary": () => setSettings((prev) => ({ ...prev, showFieldSummary: !prev.showFieldSummary })),
+    "toggle-comments": () => setSettings((prev) => ({ ...prev, showComments: !prev.showComments })),
+    "theme-light": () => setSettings((prev) => ({ ...prev, mode: "light" })),
+    "theme-dark": () => setSettings((prev) => ({ ...prev, mode: "dark" })),
+    "toggle-dbml-editor": toggleDBMLEditor,
+    // Settings
+    "toggle-autosave": () => setSettings((prev) => ({ ...prev, autosave: !prev.autosave })),
+    "table-width": () => setModal(MODAL.TABLE_WIDTH),
+    "custom-types": () => setModal(MODAL.CONFIG_CUSTOM_TYPES),
+    "language": () => setModal(MODAL.LANGUAGE),
+    "export-saved-data": exportSavedData,
+    "clear-cache": () => { deleteFromCache(gistId); Toast.success(t("cache_cleared")); },
+    "flush-storage": () => {
+      localStorage.removeItem(STORAGE_KEY);
+      db.delete().then(() => {
+        Toast.success(t("storage_flushed"));
+        navigate("/editor", { replace: true });
+        window.location.reload();
+      }).catch(() => Toast.error(t("oops_smth_went_wrong")));
+    },
+    "show-timeline": () => setSidesheet(SIDESHEET.TIMELINE),
+    // Help
+    "help-docs": () => window.open(socials.docs, "_blank"),
+    "help-shortcuts": () => window.open(`${socials.docs}/shortcuts`, "_blank"),
+    "help-discord": () => window.open(socials.discord, "_blank"),
+    "help-bug-report": () => window.open("/bug-report", "_blank"),
   });
 
   return (

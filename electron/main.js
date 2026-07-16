@@ -288,7 +288,9 @@ ipcMain.on('set-language', (_event, lang) => {
 });
 
 app.whenReady().then(() => {
-  buildMenu('en');
+  // Detect system language for initial menu: 'zh-CN' → 'zh', 'de-DE' → 'de', 'en-US' → 'en'
+  const sysLang = (app.getLocale() || 'en').split('-')[0];
+  buildMenu(sysLang);
   createWindow();
 
   app.on('activate', () => {

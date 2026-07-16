@@ -288,6 +288,9 @@ ipcMain.on('set-language', (_event, lang) => {
 });
 
 app.whenReady().then(() => {
+  // Suppress CSP warning in dev mode
+  process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
+
   // Detect system language for initial menu: 'zh-CN' → 'zh', 'de-DE' → 'de', 'en-US' → 'en'
   const sysLang = (app.getLocale() || 'en').split('-')[0];
   buildMenu(sysLang);

@@ -10,12 +10,10 @@ import {
   IconUndo,
   IconRedo,
   IconEdit,
-  IconShareStroked,
 } from "@douyinfe/semi-icons";
 import { Link, useMatch, useParams } from "react-router-dom";
 import icon from "../../assets/icon_dark_64.png";
 import {
-  Button,
   Divider,
   Dropdown,
   InputNumber,
@@ -1912,17 +1910,6 @@ export default function ControlPanel({
             {header()}
             <div className="flex items-center gap-2 me-7">
               <Slot name="header-actions-start" />
-              {!isTemplate && (
-                <Button
-                  type="primary"
-                  className="!text-base !pe-6 !ps-5 !py-[18px] !rounded-md"
-                  size="default"
-                  icon={<IconShareStroked />}
-                  onClick={() => setModal(MODAL.SHARE)}
-                >
-                  {t("share")}
-                </Button>
-              )}
               <Slot name="header-actions-end" />
             </div>
           </div>

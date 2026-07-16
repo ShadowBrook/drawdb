@@ -8,8 +8,14 @@ export default function useElectronMenu(handlers, language) {
   const handlersRef = useRef(handlers);
   handlersRef.current = handlers;
 
-  // Sync language to native menu
+  // Sync language to native menu (only on explicit change, not initial mount).
+  // The main process already detects system language via app.getLocale().
+  const mounted = useRef(false);
   useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
     if (language && window.electronAPI?.setLanguage) {
       window.electronAPI.setLanguage(language);
     }

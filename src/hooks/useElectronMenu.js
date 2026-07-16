@@ -1,13 +1,21 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Listens for Electron menu bar actions and dispatches them to
- * the provided handler functions. No-op in non-Electron environments.
+ * Listens for Electron menu bar actions and syncs language to the main process.
+ * No-op in non-Electron environments.
  */
-export default function useElectronMenu(handlers) {
+export default function useElectronMenu(handlers, language) {
   const handlersRef = useRef(handlers);
   handlersRef.current = handlers;
 
+  // Sync language to native menu
+  useEffect(() => {
+    if (language && window.electronAPI?.setLanguage) {
+      window.electronAPI.setLanguage(language);
+    }
+  }, [language]);
+
+  // Listen for menu actions
   useEffect(() => {
     const api = window.electronAPI;
     if (!api?.onMenuAction) return;

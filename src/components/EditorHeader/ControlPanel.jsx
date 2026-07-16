@@ -1897,7 +1897,7 @@ export default function ControlPanel({
     "help-shortcuts": () => window.open(`${socials.docs}/shortcuts`, "_blank"),
     "help-discord": () => window.open(socials.discord, "_blank"),
     "help-bug-report": () => window.open("/bug-report", "_blank"),
-  });
+  }, i18n.language);
 
   return (
     <>

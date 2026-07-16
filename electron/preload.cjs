@@ -14,4 +14,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   removeMenuActionListener: () => {
     ipcRenderer.removeAllListeners('menu-action');
   },
+
+  setLanguage: (lang) => {
+    ipcRenderer.send('set-language', lang);
+  },
 });

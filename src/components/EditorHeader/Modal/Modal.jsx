@@ -231,11 +231,7 @@ export default function Modal({
         setModal(MODAL.NONE);
         return;
       case MODAL.NEW:
-        if (window.electronAPI) {
-          window.location.hash = `/editor/templates/${selectedTemplateId}`;
-        } else {
-          window.open(`/#/editor/templates/${selectedTemplateId}`, "_blank");
-        }
+        window.open(`/#/editor/templates/${selectedTemplateId}`, "_blank");
         setModal(MODAL.NONE);
         return;
       case MODAL.LANGUAGE:

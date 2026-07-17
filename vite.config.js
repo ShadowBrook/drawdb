@@ -27,6 +27,7 @@ export default defineConfig({
   base: './',
   plugins: [react(), copyFontsPlugin()],
   build: {
+    chunkSizeWarningLimit: 12000,
     rollupOptions: {
       output: {
         manualChunks(id) {

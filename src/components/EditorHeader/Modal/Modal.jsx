@@ -230,10 +230,12 @@ export default function Modal({
         await saveAsCopy(saveAsTitle);
         setModal(MODAL.NONE);
         return;
-      case MODAL.NEW:
-        window.open(`/#/editor/templates/${selectedTemplateId}`, "_blank");
+      case MODAL.NEW: {
+        const base = window.location.href.split("#")[0];
+        window.open(`${base}#/editor/templates/${selectedTemplateId}`, "_blank");
         setModal(MODAL.NONE);
         return;
+      }
       case MODAL.LANGUAGE:
         i18n.changeLanguage(uncontrolledLanguage);
         setModal(MODAL.NONE);
